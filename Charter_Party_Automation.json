@@ -1,0 +1,341 @@
+{
+  "name": "Charter_Party_Automation",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Charter Party",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Template PDF",
+              "fieldType": "file",
+              "multipleFiles": false,
+              "acceptFileTypes": ".pdf",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Recap PDF",
+              "fieldType": "file",
+              "multipleFiles": false,
+              "acceptFileTypes": ".pdf",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.3,
+      "position": [
+        -48,
+        -16
+      ],
+      "id": "cffaeb7e-c7a1-48e0-ae24-7aec560838a9",
+      "name": "On form submission",
+      "webhookId": "783371ea-7abc-4d82-bd43-f22c1f0df7df"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=# Fixed Legal Document Formatting AI Prompt\n\nYou are a legal document formatting and clause-updating AI assistant.\nYou will receive two text inputs:\n1. Template PDF text — a charter party form containing placeholders and numbered clauses.\n2. Recap PDF text — a summary containing filled-in values and clause updates.\n\nYour task is to generate the final filled version of the Charter Party in pure HTML format, matching the structure and layout of a professional contract document.\n\n## FORMATTING RULES\n\n### Overall Layout\n- The output must be in valid HTML with embedded CSS for proper rendering.\n- Use proper heading tags for structure:\n  - `<h1>` for main title\n  - `<h2>` for section titles\n  - `<h3>` for clause titles\n  - `<p>` for regular text lines\n- Wrap the entire document in proper HTML structure.\n\n### Page Layout and Margins\n- Add generous margins on all sides (at least 50-60px).\n- Use padding for better readability.\n- Ensure adequate line spacing.\n\n### Document Structure\nFollow this section hierarchy:\n1. `<h1>` — Document Title\n2. `<h2>` — Part I – Commercial Terms (Filled Values)\n   - `<p>` entries for each numbered field\n3. `<h2>` — Part II – Finalized Clauses (Amendments Incorporated)\n   - `<h3>` for each clause title followed by `<p>` for clause text\n\n### Part I – Commercial Terms\n- Keep the numbered layout as in the template.\n- Replace placeholders with recap values.\n- Format each line as: \"Number. Field Name: Value\"\n- Use a colon (:) after each field name/attribute.\n- **CRITICAL**: Use inline-block layout to keep label and value on the same line\n- The underscore should be long enough (min 300px width) and appear consistently.\n- Each numbered field should be on its own line.\n- Multi-line values should wrap naturally without breaking the layout.\n\n### Part II – Clauses\n- Use `<h3>` for clause titles.\n- Integrate the clause content in `<p>` tags.\n- Merge broken lines into single readable sentences.\n- Maintain proper indentation visually by separating paragraphs.\n\n### Clause Modifications (CRITICAL):\n- **Deleted text** → Display with black strikethrough using `<del style=\"color: black; text-decoration: line-through;\">deleted text</del>`\n- **Added text** → Display in green using `<span style=\"color: green;\">added text</span>`\n- **New clauses** (not in original template) → Display entirely in green WITHOUT line numbers\n- **Unchanged text** → Display normally in black\n- When a clause is completely replaced, show the old version with strikethrough and new version in green\n- Remove clauses only if explicitly stated as deleted in recap\n\n## HTML Structure Requirements\n\nGenerate the HTML with this structure:\n\n```html\n<!DOCTYPE html>\n<html>\n<head>\n    <meta charset=\"UTF-8\">\n    <style>\n        body {\n            font-family: Arial, sans-serif;\n            margin: 60px;\n            padding: 20px;\n            line-height: 1.8;\n            font-size: 14px;\n            max-width: 1200px;\n        }\n        h1 {\n            font-size: 26px;\n            font-weight: bold;\n            margin-bottom: 8px;\n        }\n        h2 {\n            font-size: 20px;\n            font-weight: bold;\n            margin-top: 35px;\n            margin-bottom: 18px;\n        }\n        h3 {\n            font-size: 16px;\n            font-weight: bold;\n            margin-top: 25px;\n            margin-bottom: 12px;\n        }\n        p {\n            margin: 10px 0;\n            font-size: 14px;\n        }\n        .commercial-term {\n            margin: 12px 0;\n            display: block;\n        }\n        .field-label {\n            display: inline-block;\n            min-width: 200px;\n            vertical-align: top;\n        }\n        .field-value-container {\n            display: inline-block;\n            min-width: 300px;\n            max-width: 600px;\n            border-bottom: 1px solid #000;\n            padding-bottom: 2px;\n            vertical-align: top;\n        }\n        .page-header {\n            font-size: 11px;\n            color: #666;\n            margin-bottom: 25px;\n        }\n        .deleted-text {\n            color: black;\n            text-decoration: line-through;\n        }\n        .added-text {\n            color: green;\n        }\n        .new-clause {\n            color: green;\n        }\n    </style>\n</head>\n<body>\n    [Content goes here]\n</body>\n</html>\n```\n\n## Commercial Terms Formatting Example\n\n**Each commercial term should follow this exact structure:**\n\n```html\n<p class=\"commercial-term\">\n    <span class=\"field-label\">1. Vessel's Name:</span>\n    <span class=\"field-value-container\">MV EXAMPLE VESSEL</span>\n</p>\n\n<p class=\"commercial-term\">\n    <span class=\"field-label\">2. Long Field Description:</span>\n    <span class=\"field-value-container\">This is a longer value that might span multiple lines but should stay within the underlined container and flow naturally</span>\n</p>\n```\n\n**KEY CHANGE**: Instead of using CSS grid which forces line breaks, use `inline-block` with `vertical-align: top` to keep elements on the same line while allowing natural text wrapping.\n\n## Part II Clause Modifications Example\n\nFor a modified clause:\n```html\n<h3>Clause 2. Owners' Warranty</h3>\n<p>The Owners warrant that the vessel is <del class=\"deleted-text\">classed</del> <span class=\"added-text\">maintained to the highest standards and classed</span> by a recognized classification society.</p>\n```\n\nFor a new clause not in template:\n```html\n<h3 class=\"new-clause\">Additional Terms and Conditions</h3>\n<p class=\"new-clause\">This clause was added per the recap and contains new terms that were not in the original template.</p>\n```\n\n## Important Notes\n- Do not include markdown syntax.\n- Do not wrap output in code blocks.\n- Return only the complete HTML document ready for PDF conversion.\n- Ensure all values from the recap are properly integrated.\n- Maintain professional document formatting throughout.\n- Font sizes should be readable (14px for body text minimum).\n- All underscores for fields must be at least 300px wide but can expand based on content.\n- Always include colon (:) after attribute names in Part I.\n- **Use inline-block layout, NOT grid layout, for commercial terms** to prevent unwanted line breaks.\n- In Part II, carefully identify and mark deleted text (black strikethrough), added text (green), and new clauses (all green, no line numbers).\n\n## Inputs\nTemplate Text:\n{{ $json.text_1 }}\n\nRecap Text:\n{{ $json.text_2 }}\n\nGenerate the complete HTML document now, ensuring:\n- Field labels and values stay on the SAME LINE using inline-block\n- Labels use min-width: 200px\n- Value containers use min-width: 300px, max-width: 600px\n- Values wrap naturally within their container if too long\n- Colons appear after each field name in Part I\n- Text is at least 14px (readable size)\n- Deleted text has black strikethrough\n- Added text is in green\n- New clauses are entirely in green without line numbers\n- Proper margins (60px) on all edges",
+        "needsFallback": true,
+        "options": {
+          "systemMessage": "You are an expert legal document and form processing AI Assistant",
+          "batching": {
+            "batchSize": 5
+          }
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        704,
+        -16
+      ],
+      "id": "b5995c7d-a080-498e-87f7-9a21286e95b9",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "binaryPropertyName": "Template_PDF",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        224,
+        -224
+      ],
+      "id": "55038e50-b190-4760-b396-e744184dfba8",
+      "name": "Extract from Template File",
+      "notesInFlow": true,
+      "notes": "Extracts from template"
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "binaryPropertyName": "Recap_PDF",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        224,
+        208
+      ],
+      "id": "47766314-99a0-4a5a-9a3f-619337317e2d",
+      "name": "Extract from Recap File",
+      "notesInFlow": true,
+      "notes": "Extracts from recap"
+    },
+    {
+      "parameters": {
+        "options": {
+          "responseFormat": "text"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        736,
+        256
+      ],
+      "id": "af8d0d02-dfeb-47d0-9be3-05e2bc58a104",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "FlSd2Q82asISkYiQ",
+          "name": "OpenRouter account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('On form submission').item.json.submittedAt }}",
+        "contextWindowLength": 7
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        880,
+        256
+      ],
+      "id": "d5743a94-3616-42fc-a3f1-c3bcbd744e7a",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {
+          "clashHandling": {
+            "values": {
+              "resolveClash": "addSuffix"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        496,
+        -16
+      ],
+      "id": "7c21ff11-60f1-48ff-a84a-a6f6aeeb3eaa",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "model": "deepseek/deepseek-r1",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        592,
+        256
+      ],
+      "id": "89e5b10c-d0ac-4b1a-b5c8-a117e938e3d3",
+      "name": "OpenRouter Chat Model1",
+      "credentials": {
+        "openRouterApi": {
+          "id": "FlSd2Q82asISkYiQ",
+          "name": "OpenRouter account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "inputDataFieldName": "=data",
+        "name": "=Final_Filled.pdf",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "root",
+          "cachedResultName": "/ (Root folder)"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1232,
+        -16
+      ],
+      "id": "32fbff13-2fe4-4d9f-af8e-c919a8c8b26c",
+      "name": "Upload file1",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "gvczC0yvaoDdkign",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "htmlInput": "={{ $json.output }}"
+      },
+      "type": "@custom-js/n8n-nodes-pdf-toolkit.html2Pdf",
+      "typeVersion": 1,
+      "position": [
+        1024,
+        -16
+      ],
+      "id": "7308751b-b4e5-40d0-a8f0-bdd75dc5eb37",
+      "name": "HTML to PDF",
+      "credentials": {
+        "customJsApi": {
+          "id": "ulQHv93jpR5lpaWi",
+          "name": "CustomJS account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Extract from Template File",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Extract from Recap File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from Template File": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from Recap File": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "HTML to PDF",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTML to PDF": {
+      "main": [
+        [
+          {
+            "node": "Upload file1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "401d9afa-5098-47f2-a51b-29129b6c0c6d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "d01d7a257eece8117e454e0fbbfaf3197567a88897895c03b947fbc0bf9eac92"
+  },
+  "id": "nieuib1GccgYAmSH",
+  "tags": []
+}
